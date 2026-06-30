@@ -23,64 +23,50 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
           cache-dependency-path: requirements.txt
-      
+        
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-      
-      - name: Create icon file
+        
+      - name: Create simple icon file
         run: |
-          # Create a simple calculator icon using Python
-          python - << 'EOF'
+          python -c "
 import base64
 import os
 
-# Simple calculator icon in base64 (16x16 PNG)
-icon_data = base64.b64decode("""
-Qk16BAAAAAAADYAAAAoAAAAIAAAACAAAAABAAEASAAAAAEAAAAMDAwMDAwMDAwMDAwMDAwMAAAAAD/
-2w==""")
+png_data = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==')
+
+with open('calculator.png', 'wb') as f:
+    f.write(png_data)
 
 with open('calculator.ico', 'wb') as f:
-    # Write a minimal ICO file header
-    f.write(b'\x00\x00\x01\x00\x01\x00\x10\x10\x00\x00\x00\x00')
-    # For simplicity, we'll just create a placeholder
-    pass
-          
-          # Create a simple icon using PIL if available
-          try:
-              from PIL import Image, ImageDraw
-              img = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-              draw = ImageDraw.Draw(img)
-              # Draw a simple calculator
-              draw.rectangle([(10, 10), (54, 20)], fill=(50, 50, 50, 255), outline=(200, 200, 200, 255))
-              draw.rectangle([(10, 25), (25, 40)], fill=(100, 100, 100, 255))
-              draw.rectangle([(28, 25), (43, 40)], fill=(100, 100, 100, 255))
-              draw.rectangle([(46, 25), (54, 40)], fill=(100, 100, 100, 255))
-              draw.rectangle([(10, 43), (25, 58)], fill=(100, 100, 100, 255))
-              draw.rectangle([(28, 43), (43, 58)], fill=(100, 100, 100, 255))
-              draw.rectangle([(46, 43), (54, 58)], fill=(100, 100, 100, 255))
-              img.save('calculator.png')
-              print("Created calculator.png")
-          except:
-              # If PIL not available, create a dummy file
-              with open('calculator.png', 'wb') as f:
-                  f.write(b'dummy')
-              print("Created dummy calculator.png")
-EOF
-      
+    f.write(b'\x00\x00\x01\x00\x40\x40\x00\x00\x00\x00\x01\x00\x20\x00')
+    f.write(png_data)
+
+print('Created placeholder icon files')
+"
+        
       - name: Build with PyInstaller
         run: |
           pyinstaller calculator.spec --clean --noconfirm
-      
+        
       - name: Rename executable
+        shell: bash
         run: |
-          if (Test-Path "dist/calculator-win.exe") {
-            Move-Item "dist/calculator-win.exe" "calculator-win.exe"
-          } elseif (Test-Path "dist/calculator-win") {
-            Move-Item "dist/calculator-win" "calculator-win.exe"
-          }
+          if [ -f "dist/calculator-win.exe" ]; then
+            mv "dist/calculator-win.exe" "calculator-win.exe"
+          elif [ -f "dist/calculator-win" ]; then
+            mv "dist/calculator-win" "calculator-win.exe"
+          else
+            for file in dist/*.exe; do
+              if [ -f "$file" ]; then
+                mv "$file" "calculator-win.exe"
+                break
+              fi
+            done
+          fi
       
       - name: Upload Windows EXE
         uses: actions/upload-artifact@v4
