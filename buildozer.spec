@@ -12,6 +12,9 @@ package.domain = org.anishtayin
 # (str) Source code where the main.py live
 source.dir = .
 
+# (str) Main Python file
+main.py = main.py
+
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas,ico
 
@@ -35,7 +38,7 @@ version = 1.0.0
 # version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
-requirements = python3,PyQt6>=6.4.0,pyqt6-qt6>=6.4.0,pyqt6-sip>=13.4.0
+requirements = python3,kivy>=2.1.0
 
 # (str) Custom source folders for requirements
 #requirements.source = 

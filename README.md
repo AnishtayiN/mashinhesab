@@ -1,47 +1,97 @@
 # ماشین حساب پیشرفته - Advanced Calculator
 
-یک ماشین حساب فوق العاده با ویژگی‌های منحصر به فرد برای انجام محاسبات پیچیده
+یک ماشین حساب کامل و پیشرفته با قابلیت‌های مختلف برای ویندوز و اندروید.
 
-## ویژگی‌ها
+## ✨ ویژگی‌ها
 
-✅ محاسبات پایه (جمع، تفریق، ضرب، تقسیم)
-✅ عملیات پیشرفته (سین، کسین، تانژانت، لگاریتم، توان)
-✅ محاسبات ماتریسی
-✅ محاسبات معکوس، فاکتوریل، درصد
-✅ حافظه و تاریخچه
-✅ پشتیبانی از مودهای مختلف (عادی، علمی، برنامه‌نویس)
-✅ رابط کاربری زیبا و روان
-✅ پشتیبانی از کیبورد
+- **حالت‌های مختلف:** عادی، علمی، برنامه‌نویس، ماتریس
+- **عملیات پایه:** جمع، تفریق، ضرب، تقسیم
+- **توابع علمی:** سینوس، کوسینوس، تانژانت، لگاریتم، ریشه، توان
+- **حافظه:** ذخیره، فراخوانی، جمع و تفریق حافظه
+- **پشتیبانی از کیبورد**
+- **رابط کاربری زیبا** با تم تاریک
 
-## نصب
+## 📦 نصب و اجرا
 
-### ویندوز
-دانلود فایل `calculator-win.exe` از بخش Releases
+### برای ویندوز (EXE)
 
-### اندروید
-دانلود فایل‌های APK از بخش Releases:
-- `calculator-android-legacy.apk` (اندروید 7 تا 15)
-- `calculator-android-modern.apk` (اندروید 16 و جدیدتر)
+1. فایل `calculator-win.exe` رو از قسمت [Releases](https://github.com/AnishtayiN/mashinhesab/releases) دانلود کنید
+2. فایل رو اجرا کنید
 
-## تکنولوژی‌ها
+### برای اندروید (APK)
 
-- **زبان**: Python 3.10+
-- **GUI**: PyQt6
-- **Build ویندوز**: PyInstaller
-- **Build اندروید**: Buildozer
-- **CI/CD**: GitHub Actions
+1. فایل `calculator-android.apk` رو از قسمت [Releases](https://github.com/AnishtayiN/mashinhesab/releases) دانلود کنید
+2. فایل رو روی گوشی اندروید نصب کنید
 
-## ساخت خودکار
+## 🚀 ساخت خودکار
 
-پروژه به صورت خودکار توسط GitHub Actions ساخته می‌شود:
-- ویدوز: EXE برای ویندوز 7 تا 11
-- اندروید: 2 نسخه APK برای نسخه‌های مختلف
+این پروژه به صورت خودکار توسط GitHub Actions ساخته می‌شود:
+- **Windows EXE:** از PyInstaller استفاده می‌شود
+- **Android APK:** از Buildozer استفاده می‌شود
 
-## لایسنس
+### شروع ساخت دستی
+
+1. **Push به branch اصلی:**
+   ```bash
+   git push origin main
+   ```
+
+2. **ایجاد Tag جدید:**
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+3. **اجرای دستی از GitHub Actions**
+
+## 📁 ساختار پروژه
+
+```
+mashinhesab/
+├── calculator.py      # کد اصلی ماشین حساب (PyQt6 - ویندوز)
+├── main.py            # ورودی اصلی برای اندروید (Kivy)
+├── buildozer.spec      # تنظیمات Buildozer برای اندروید
+├── calculator.spec     # تنظیمات PyInstaller برای ویندوز
+├── requirements.txt    # وابستگی‌های Python برای ویندوز
+└── .github/
+    └── workflows/
+        ├── build_windows.yml
+        └── build_android.yml
+```
+
+## 🔧 توسعه
+
+### پیشنیازها
+
+- Python 3.10 یا بالاتر
+- برای ویندوز:
+  ```bash
+  pip install -r requirements.txt
+  python calculator.py
+  ```
+
+- برای اندروید:
+  ```bash
+  pip install buildozer kivy
+  buildozer android debug
+  ```
+
+### ساخت EXE برای ویندوز
+
+```bash
+pip install pyinstaller
+pyinstaller calculator.spec --clean --noconfirm
+```
+
+## 🤝 مشارکت
+
+جهت مشارکت، Pull Request ارسال کنید یا Issues گزارش دهید.
+
+## 📜 لایسنس
 
 MIT License
 
 ---
 
-**ساخت: برای AnishtayiN**
-**آدرس GitHub: https://github.com/AnishtayiN/mashinhesab**
+**ساخت:** برای [AnishtayiN](https://github.com/AnishtayiN)
+**آدرس GitHub:** [https://github.com/AnishtayiN/mashinhesab](https://github.com/AnishtayiN/mashinhesab)
