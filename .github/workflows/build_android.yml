@@ -1,0 +1,149 @@
+name: Build Android APKs
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APKs
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+      
+      - name: Install Buildozer and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install buildozer
+          pip install -r requirements.txt
+      
+      - name: Install Android dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 libffi-dev libssl-dev libreadline-dev libsqlite3-dev
+          
+      - name: Initialize Buildozer
+        run: |
+          buildozer init
+          # Copy our custom spec file
+          cp buildozer.spec buildozer.spec.bak || true
+      
+      - name: Create calculator icon
+        run: |
+          # Create a simple icon
+          python3 - << 'EOF'
+from PIL import Image, ImageDraw
+import os
+
+# Create directory for resources
+os.makedirs('resources', exist_ok=True)
+
+# Create icon sizes for Android
+sizes = [36, 48, 72, 96, 144, 192, 512]
+for size in sizes:
+    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    
+    # Draw calculator icon
+    padding = size // 8
+    display_y = padding
+    display_h = size // 4
+    button_size = (size - padding * 2 - display_h) // 3
+    
+    # Display
+    draw.rectangle([padding, display_y, size - padding, display_y + display_h], 
+                   fill=(50, 50, 50, 255), outline=(200, 200, 200, 255))
+    
+    # Buttons row 1
+    for i in range(3):
+        x = padding + i * button_size
+        draw.rectangle([x, display_y + display_h + padding, x + button_size, display_y + display_h + padding + button_size],
+                       fill=(100, 100, 100, 255), outline=(200, 200, 200, 255))
+    
+    # Buttons row 2
+    for i in range(3):
+        y = display_y + display_h + padding * 2 + button_size
+        x = padding + i * button_size
+        draw.rectangle([x, y, x + button_size, y + button_size],
+                       fill=(100, 100, 100, 255), outline=(200, 200, 200, 255))
+    
+    img.save(f'resources/calculator_{size}.png')
+    print(f'Created calculator_{size}.png')
+
+# Create icon.png for the app
+img = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
+draw = ImageDraw.Draw(img)
+padding = 100
+display_h = 200
+button_size = 200
+
+# Display
+draw.rectangle([padding, padding, 1024 - padding, padding + display_h], 
+               fill=(50, 50, 50, 255), outline=(200, 200, 200, 255))
+
+# Buttons
+for row in range(4):
+    for col in range(3):
+        x = padding + col * button_size
+        y = padding + display_h + padding + row * button_size
+        if row == 3 and col == 2:
+            # = button (span 1 column)
+            draw.rectangle([x, y, x + button_size, y + button_size],
+                           fill=(255, 149, 0, 255), outline=(200, 200, 200, 255))
+            draw.text((x + button_size//2, y + button_size//2), '=', 
+                      fill=(0, 0, 0, 255), anchor='mm')
+        else:
+            draw.rectangle([x, y, x + button_size, y + button_size],
+                           fill=(100, 100, 100, 255), outline=(200, 200, 200, 255))
+
+img.save('calculator.png')
+print('Created calculator.png')
+EOF
+      
+      - name: Build APK with Buildozer
+        run: |
+          # Build for Android 7+ (armeabi-v7a)
+          buildozer -v android debug
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+          ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk
+      
+      - name: Rename APK files
+        run: |
+          # Find the APK file
+          if [ -f "bin/mashinhesab-*-debug.apk" ]; then
+            mv bin/mashinhesab-*-debug.apk calculator-android-legacy.apk
+          elif [ -f "bin/*.apk" ]; then
+            mv bin/*.apk calculator-android-legacy.apk
+          fi
+      
+      - name: Upload Android APK (Legacy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-android-legacy
+          path: calculator-android-legacy.apk
+          compression-level: 9
+      
+      - name: Create Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            calculator-android-legacy.apk
+          name: Release ${{\ github.ref_name }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{\ secrets.GITHUB_TOKEN }}
