@@ -32,21 +32,7 @@ jobs:
         
       - name: Create simple icon file
         run: |
-          python -c "
-import base64
-import os
-
-png_data = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==')
-
-with open('calculator.png', 'wb') as f:
-    f.write(png_data)
-
-with open('calculator.ico', 'wb') as f:
-    f.write(b'\x00\x00\x01\x00\x40\x40\x00\x00\x00\x00\x01\x00\x20\x00')
-    f.write(png_data)
-
-print('Created placeholder icon files')
-"
+          python -c "import base64; png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='); open('calculator.png','wb').write(png); open('calculator.ico','wb').write(b'\x00\x00\x01\x00\x40\x40\x00\x00\x00\x00\x01\x00\x20\x00'+png); print('Icons created')"
         
       - name: Build with PyInstaller
         run: |

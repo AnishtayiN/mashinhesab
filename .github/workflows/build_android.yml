@@ -10,77 +10,62 @@ on:
 
 jobs:
   build-android:
-    name: Build Android APKs
+    name: Build Android APK
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: requirements.txt
-      
-      - name: Install Buildozer and dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install buildozer
-          pip install -r requirements.txt
-      
-      - name: Install Android SDK and NDK
-        uses: android-actions/setup-android@v3
-        with:
-          sdk-version: '33'
-          ndk-version: '23b'
-          cmake-version: '3.10.2'
-          accept-licenses: true
-      
       - name: Create simple icon file
         run: |
-          python3 -c "
-import base64
-import os
-
-os.makedirs('resources', exist_ok=True)
-
-png_data = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==')
-
-with open('calculator.png', 'wb') as f:
-    f.write(png_data)
-
-with open('resources/calculator.png', 'wb') as f:
-    f.write(png_data)
-
-print('Created placeholder icon files')
-"
+          python3 -c "import base64,os; os.makedirs('resources', exist_ok=True); png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='); open('calculator.png','wb').write(png); open('resources/calculator.png','wb').write(png); print('Icons created')"
+      
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v3
+        with:
+          path: .buildozer_global
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-global-
       
       - name: Build APK with Buildozer
-        run: |
-          buildozer -v android debug
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: .
+          buildozer_version: stable
+          command: android debug
       
-      - name: Rename APK files
+      - name: Get APK filename
+        id: apk_filename
         run: |
-          if [ -f "bin/mashinhesab-*-debug.apk" ]; then
-            mv bin/mashinhesab-*-debug.apk calculator-android-legacy.apk
-          elif [ -f "bin/*.apk" ]; then
-            mv bin/*.apk calculator-android-legacy.apk
+          if [ -f "${{ steps.buildozer.outputs.filename }}" ]; then
+            echo "filename=${{ steps.buildozer.outputs.filename }}" >> $GITHUB_OUTPUT
+          elif ls bin/*.apk 1> /dev/null 2>&1; then
+            echo "filename=bin/$(ls bin/*.apk | head -1)" >> $GITHUB_OUTPUT
+          else
+            echo "filename=" >> $GITHUB_OUTPUT
           fi
       
-      - name: Upload Android APK (Legacy)
+      - name: Rename APK
+        run: |
+          if [ -n "${{ steps.apk_filename.outputs.filename }}" ]; then
+            cp "${{ steps.apk_filename.outputs.filename }}" calculator-android.apk
+          fi
+      
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: calculator-android-legacy
-          path: calculator-android-legacy.apk
+          name: calculator-android-apk
+          path: calculator-android.apk
           compression-level: 9
       
       - name: Create Release (on tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: calculator-android-legacy.apk
+          files: calculator-android.apk
           name: Release ${{\ github.ref_name }}
           generate_release_notes: true
         env:
