@@ -4,7 +4,7 @@
 title = ماشین حساب پیشرفته
 
 # (str) Package name
-t package.name = mashinhesab
+package.name = mashinhesab
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.anishtayin
@@ -35,7 +35,7 @@ version = 1.0.0
 # version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
-requirements = python3,kivy,pyqt6,PyQt6,qt6,pyqt6-qt6
+requirements = python3,PyQt6>=6.4.0,pyqt6-qt6>=6.4.0,pyqt6-sip>=13.4.0
 
 # (str) Custom source folders for requirements
 #requirements.source = 

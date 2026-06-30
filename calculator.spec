@@ -7,7 +7,7 @@ a = Analysis(
     ['calculator.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('calculator.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
