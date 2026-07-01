@@ -1,0 +1,56 @@
+# Flutter/Dart/Pub related
+**.dart_tool/
+**~/.dart_tool/
+.git
+.idea
+*.iml
+*.swp
+*~
+
+# Flutter builds
+**/build/
+**/ios/Flutter/
+**/android/.gradle/
+**/android/app/build/
+
+# Android Studio
+*.iml
+.idea/
+
+# Android
+**/android/local.properties
+**/android/*.keystore
+**/android/captures/
+**/android/gradle/
+**/android/gradlew
+**/android/gradlew.bat
+
+# iOS
+**/ios/.vagrant/
+**/ios/Flutter/
+**/ios/Pods/
+**/ios/Flutter/
+.packages
+.podenv.yaml
+.project/
+.xcworkspace/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+**/test/
+**/coverage/
